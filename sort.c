@@ -1,23 +1,95 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int extraMemoryAllocated;
 
-// implements heap sort
-// extraMemoryAllocated counts bytes of memory allocated
-void heapSort(int arr[], int n)
+
+void swap(int* a, int* b)
 {
+	int temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+void heapify(int A[], int G, int i)
+{
+
+	int largest = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+
+	if (left < G && A[left] > A[largest])
+		largest = left;
+	if (right < G && A[right] > A[largest])
+		largest = right;
+	if (largest != i) {
+		swap(&A[i], &A[largest]);
+		heapify(A, G, largest);
+	}
 }
 
 
-// implement merge sort
-// extraMemoryAllocated counts bytes of extra memory allocated
-void mergeSort(int pData[], int l, int r)
+void heapSort(int A[], int G)
 {
+
+	for (int i = G / 2 - 1; i >= 0; i--)
+		heapify(A, G, i);
+	for (int i = G - 1; i >= 0; i--) {
+		swap(&A[0], &A[i]);
+		heapify(A, i, 0);
+	}
 }
 
-// parses input file to an integer array
+void merge(int A[], int l, int m, int r)
+{
+	int i, j, k;
+	int n1 = m - i + 1;
+	int n2 = r - m;
+	int L[n1], R[n2];
+	for (i = 0; i < n1; i++)
+		L[i] = A[l + i];
+	for (j = 0; j < n2; j++)
+		R[j] = A[m + 1 + j];
+	i = 0; 
+	j = 0; 
+	k = l; 
+	while (i < n1 && j < n2) {
+		if (L[i] <= R[j]) {
+			A[k] = L[i];
+			i++;
+		}
+		else {
+			A[k] = R[j];
+			j++;
+		}
+		k++;
+	}
+	while (i < n1) {
+		A[k] = L[i];
+		i++;
+		k++;
+	}
+
+	while (j < n2) {
+		A[k] = R[j];
+		j++;
+		k++;
+	}
+}
+
+void mergeSort(int A[], int l, int r)
+{
+	if (l < r) {
+
+		int m = l + (r - l) / 2;
+		mergeSort(A, l, m);
+		mergeSort(A, m + 1, r);
+		merge(A, l, m, r);
+	}
+}
+
 int parseData(char *inputFileName, int **ppData)
 {
 	FILE* inFile = fopen(inputFileName,"r");
